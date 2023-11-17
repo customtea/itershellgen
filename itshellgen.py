@@ -15,7 +15,10 @@ def version():
 
 def opt_iter_parse(s: str):
     if "," in s:
-        return s.split(",")
+        ss = s.split(",")
+        if ss[-1] == "":
+            ss.pop(-1)
+        return ss
     elif "..=" in s:
         sp = s.split("..=")
         sp = list(map(int, sp))
@@ -37,6 +40,8 @@ def opt_iter_parse(s: str):
         return list(range(beg, end))
         # print(s.split(".."))
     else:
+        if int(s) == 0:
+            return [0]
         return list(range(0, int(s)))
 
 
@@ -55,7 +60,7 @@ def begin_itel(count_state, keyname, beg_list, it_list):
             if  count_state[sel] == it_list[sel][0]:
                 # print(beg_list[beg])
                 s += expand_placeholder(beg_list[beg], count_state, keyname) + "\n"
-    return s
+    return s.strip()
 
 
 def end_itel(count_state, keyname, end_list, it_list):
@@ -66,7 +71,7 @@ def end_itel(count_state, keyname, end_list, it_list):
             if  count_state[sel] == it_list[sel][-1]:
                 # print(end_list[end])
                 s += expand_placeholder(end_list[end], count_state, keyname) + "\n"
-    return s
+    return s.strip()
 
 
 class MyHelpFormatter(RawTextHelpFormatter, RawDescriptionHelpFormatter, ArgumentDefaultsHelpFormatter):
