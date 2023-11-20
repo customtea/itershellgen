@@ -3,9 +3,10 @@ import sys
 from itertools import product
 import datetime
 import argparse
+import typing
 from argparse import (OPTIONAL, SUPPRESS, ZERO_OR_MORE, ArgumentDefaultsHelpFormatter, ArgumentParser, RawDescriptionHelpFormatter, RawTextHelpFormatter)
 
-__author__ = 'Github @customtea'
+__author__ = 'customtea (https://github.com/customtea/)'
 __version__ = '1.0.1'
 __program__ = 'Iteration Command Script Generator'
 
@@ -19,9 +20,16 @@ def opt_iter_parse(s: str):
         if ss[-1] == "":
             ss.pop(-1)
         return ss
+    elif ":" in s:
+        ss = s.split(":")
+        sp = list(map(int, ss))
+        start = sp[0]
+        stop = sp[1]
+        step = sp[2]
+        return list(range(start, stop, step))
     elif "..=" in s:
-        sp = s.split("..=")
-        sp = list(map(int, sp))
+        ss = s.split("..=")
+        sp = list(map(int, ss))
         if sp == 1:
             end = sp[0]
         else:
@@ -30,8 +38,8 @@ def opt_iter_parse(s: str):
         return list(range(beg, end + 1))
         
     elif ".." in s:
-        sp = s.split("..")
-        sp = list(map(int, sp))
+        ss = s.split("..")
+        sp = list(map(int, ss))
         if sp == 1:
             end = sp[0]
         else:
@@ -52,7 +60,7 @@ def expand_placeholder(s, count_state, keyname):
     return ns
 
 
-def begin_itel(count_state, keyname, beg_list, it_list):
+def before_itel(count_state, keyname, beg_list, it_list):
     s = ""
     for beg in beg_list:
         sel = keyname[beg] + 1
@@ -63,7 +71,7 @@ def begin_itel(count_state, keyname, beg_list, it_list):
     return s.strip()
 
 
-def end_itel(count_state, keyname, end_list, it_list):
+def after_itel(count_state, keyname, end_list, it_list):
     s = ""
     for end in end_list:
         sel = keyname[end] + 1
@@ -109,10 +117,14 @@ Example:
                         metavar=("Key","Loop"),
                         help='Set Iteration\n\
 Loop Example\n\
-    N : range(0, N)\n\
-    M..N : range(M, N)\n\
-    M..=N : range(M, N+1)\n\
-    A,B,C : [A,B,C] ')
+    0           -> [0]\n\
+    N           -> range(0, N)\n\
+    M..N        -> range(M, N)\n\
+    M..=N       -> range(M, N+1)\n\
+    A,B,C       -> [A,B,C]\n\
+    A,          -> [A]\n\
+    st:ed:step  -> range(st, ed, step)\n\
+    ')
     parser.add_argument('--before',
                         nargs=2,
                         action='append',
@@ -162,7 +174,7 @@ Empty Name is named "YYYYMMDD-HHMMSS" ')
 
 
 
-it_list = []
+it_list: typing.List[typing.List[typing.Union[int, str]]] = []
 it_keys = {}
 iter_before = {}
 iter_after = {}
@@ -250,7 +262,10 @@ if __name__ == '__main__':
     for c_state in product(*it_list):
         # print(item)
         s = ""
-        s += begin_itel(c_state, it_keys, iter_before, it_list)
+        bit = before_itel(c_state, it_keys, iter_before, it_list)
+        s += bit
+        if bit != "":
+            s += "\n"
         s += expand_placeholder(cmd,c_state, it_keys)
         if p_count >= parallel_max -1:
             p_count = 0
@@ -258,7 +273,10 @@ if __name__ == '__main__':
         else:
             p_count += 1
             s += " &\n"
-        s += end_itel(c_state, it_keys, iter_after, it_list)
+        ait = after_itel(c_state, it_keys, iter_after, it_list)
+        s += ait
+        if ait != "":
+            s += "\n"
         if is_fileout:
             outfile.write(s)
         else:

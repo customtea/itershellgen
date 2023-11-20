@@ -17,10 +17,13 @@ options:
 
   --iter Key Loop       Set Iteration
                         Loop Example
-                            N : range(0, N)
-                            M..N : range(M, N)
-                            M..=N : range(M, N+1)
-                            A,B,C : [A,B,C]
+                            0           -> [0]
+                            N           -> range(0, N)
+                            M..N        -> range(M, N)
+                            M..=N       -> range(M, N+1)
+                            A,B,C       -> [A,B,C]
+                            A,          -> [A]
+                            st:ed:step  -> range(st, ed, step)
 
   --before Key 'Command'
                         Exec Before Iteration Command
