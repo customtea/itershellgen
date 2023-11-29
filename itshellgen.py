@@ -235,7 +235,7 @@ if __name__ == '__main__':
     if args.out or args.out == None:
         is_fileout = True
         if args.out == None:
-            filename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ".sh"
+            filename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S_%f") + ".sh"
         else:
             filename = args.out
             original_command += f" --out {filename}"
