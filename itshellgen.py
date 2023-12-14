@@ -217,12 +217,12 @@ if __name__ == '__main__':
     if args.begin:
         script_begin = args.begin
         for item in args.begin:
-            original_command += f" --begin {item[0]} '{item[1]}'"
+            original_command += f" --begin '{item}'"
     
     if args.end:
         script_end = args.end
         for item in args.end:
-            original_command += f" --end {item[0]} '{item[1]}'"
+            original_command += f" --end '{item}'"
     
     if args.parallel:
         parallel_max = int(args.parallel)
