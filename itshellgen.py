@@ -273,7 +273,7 @@ if __name__ == '__main__':
         aprint(beg)
     
     if parallel_xargs:
-        head_xargs = f"xargs -d\\n -P {parallel_max} -L 1 bash -c << EOS"
+        head_xargs = rf"xargs -d \\n -P {parallel_max} -L 1 bash -c << EOS"
         end_xargs = "EOS"
 
     if not parallel_xargs:
@@ -304,13 +304,13 @@ if __name__ == '__main__':
             else:
                 print("wait")
     else:
-        if parallel_xargs:
+        if parallel_xargs and iter_before:
             aprint(head_xargs)
         for c_state in product(*it_list):
             s = before_itel(c_state, it_keys, iter_before, it_list)
             s = add_newline(s)
             aprint(s, end="")
-        if parallel_xargs:
+        if parallel_xargs and iter_before:
             aprint(end_xargs)
 
         if parallel_xargs:
@@ -322,13 +322,13 @@ if __name__ == '__main__':
         if parallel_xargs:
             aprint(end_xargs)
 
-        if parallel_xargs:
+        if parallel_xargs and iter_after:
             aprint(head_xargs)
         for c_state in product(*it_list):
             s = after_itel(c_state, it_keys, iter_after, it_list)
             s = add_newline(s)
             aprint(s, end="")
-        if parallel_xargs:
+        if parallel_xargs and iter_after:
             aprint(end_xargs)
         
     for end in script_end:
