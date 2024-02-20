@@ -159,6 +159,11 @@ Loop Example\n\
                         default=None,
                         metavar="int",
                         help='Parallel Number [int]')
+    parser.add_argument('--xargs',
+                        action='store_true',
+                        default=False,
+                        help='Real Parallel Mode by \'xargs\'. Default Mode is Pesuedo Parallel'
+                        )
 
     parser.add_argument('--out',
                         nargs='?',
@@ -180,8 +185,9 @@ iter_before = {}
 iter_after = {}
 script_begin = []
 script_end = []
-parallel_max = 0
+parallel_max = 1
 shebang = "#!/bin/bash"
+parallel_xargs = False
 
 if __name__ == '__main__':
     original_command = f"{sys.argv[0]} "
@@ -231,15 +237,20 @@ if __name__ == '__main__':
     if args.shebang:
         shebang = args.shebang
         original_command += f" --shebang '{args.shebang}'"
+    
+    if args.xargs:
+        parallel_xargs = True
+        original_command += "--xargs"
 
     if args.out or args.out == None:
         is_fileout = True
         if args.out == None:
             filename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S_%f") + ".sh"
+            print(filename)
         else:
             filename = args.out
             original_command += f" --out {filename}"
-        outfile = open(filename, "w")
+        outfile = open(filename, "w", newline="\n")
     else:
         is_fileout = False
     
@@ -258,35 +269,76 @@ if __name__ == '__main__':
             outfile.write(beg + "\n")
         else:
             print(beg)
-    p_count = 0
-    for c_state in product(*it_list):
-        # print(item)
-        s = ""
-        bit = before_itel(c_state, it_keys, iter_before, it_list)
-        s += bit
-        if bit != "":
-            s += "\n"
-        s += expand_placeholder(cmd,c_state, it_keys)
-        if p_count >= parallel_max -1:
-            p_count = 0
-            s += "\n"
-        else:
-            p_count += 1
-            s += " &\n"
-        ait = after_itel(c_state, it_keys, iter_after, it_list)
-        s += ait
-        if ait != "":
-            s += "\n"
+    
+    if parallel_xargs:
+        head_xargs = f"xargs -d\\n -P {parallel_max} -L 1 bash -c << EOS"
         if is_fileout:
-            outfile.write(s)
+            outfile.write(head_xargs + "\n")
         else:
-            print(s, end="")
-            
-    if args.parallel:
+            print(head_xargs)
+
+    if not parallel_xargs:
+        p_count = 0
+        for c_state in product(*it_list):
+            # print(item)
+            s = ""
+            bit = before_itel(c_state, it_keys, iter_before, it_list)
+            s += bit
+            if bit != "":
+                s += "\n"
+            s += expand_placeholder(cmd,c_state, it_keys)
+            if p_count >= parallel_max -1:
+                p_count = 0
+                s += "\n"
+            else:
+                p_count += 1
+                s += " &\n"
+            ait = after_itel(c_state, it_keys, iter_after, it_list)
+            s += ait
+            if ait != "":
+                s += "\n"
+            if is_fileout:
+                outfile.write(s)
+            else:
+                print(s, end="")
+                
+        if args.parallel:
+            if is_fileout:
+                outfile.write("\nwait\n")
+            else:
+                print("wait")
+    else:
+        for c_state in product(*it_list):
+            s = before_itel(c_state, it_keys, iter_before, it_list)
+            if s != "":
+                s += "\n"
+            if is_fileout:
+                outfile.write(s)
+            else:
+                print(s, end="")
+        for c_state in product(*it_list):
+            s = expand_placeholder(cmd,c_state, it_keys)
+            if s != "":
+                s += "\n"
+            if is_fileout:
+                outfile.write(s)
+            else:
+                print(s, end="")
+        for c_state in product(*it_list):
+            s = after_itel(c_state, it_keys, iter_after, it_list)
+            if s != "":
+                s += "\n"
+            if is_fileout:
+                outfile.write(s)
+            else:
+                print(s, end="")
+    if parallel_xargs:
+        end_xargs = "EOS"
         if is_fileout:
-            outfile.write("\nwait\n")
+            outfile.write(end_xargs + "\n")
         else:
-            print("wait")
+            print(end_xargs)
+        
     for end in script_end:
         if is_fileout:
             outfile.write(end + "\n")
