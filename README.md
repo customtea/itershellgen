@@ -2,8 +2,8 @@
 
 ## help
 ```
-usage: itshellgen.py [-h] [--iter Key Loop] [--before Key 'Command'] [--after Key 'Command'] [--begin ['Command']] [--end ['Command']] [--shebang ['Shebang Command']] [--parallel [int]]
-                     [--out [FileName]] [--version]
+usage: itshellgen.py [-h] [--iter Key Loop] [--before Key 'Command'] [--after Key 'Command'] [--begin ['Command']] [--end ['Command']] [--shebang ['Shebang Command']]
+                     [--parallel [int]] [--xargs] [--out [FileName]] [--version]
                      cmd
 
 Example:
@@ -25,6 +25,7 @@ options:
                             A,          -> [A]
                             st:ed:step  -> range(st, ed, step)
 
+
   --before Key 'Command'
                         Exec Before Iteration Command
 
@@ -39,6 +40,8 @@ options:
                         Shebang (default: #!/bin/bash)
 
   --parallel [int]      Parallel Number [int]
+
+  --xargs               Real Parallel Mode by 'xargs'. Default Mode is Pesuedo Parallel
 
   --out [FileName]      Output FileName (Default: StdOut)
                         Empty Name is named "YYYYMMDD-HHMMSS"

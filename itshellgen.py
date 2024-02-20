@@ -7,7 +7,7 @@ import typing
 from argparse import (OPTIONAL, SUPPRESS, ZERO_OR_MORE, ArgumentDefaultsHelpFormatter, ArgumentParser, RawDescriptionHelpFormatter, RawTextHelpFormatter)
 
 __author__ = 'customtea (https://github.com/customtea/)'
-__version__ = '1.0.1'
+__version__ = '2.1.3'
 __program__ = 'Iteration Command Script Generator'
 
 def version():
