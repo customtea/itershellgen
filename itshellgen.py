@@ -273,7 +273,7 @@ if __name__ == '__main__':
         aprint(beg)
     
     if parallel_xargs:
-        head_xargs = rf"xargs -d \\n -P {parallel_max} -L 1 bash -c << EOS"
+        head_xargs = rf"xargs -d \\n -P {parallel_max} -L 1 bash -x -c << EOS"
         end_xargs = "EOS"
 
     if not parallel_xargs:
